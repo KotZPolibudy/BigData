@@ -51,8 +51,21 @@ public class Main extends Configured implements Tool {
                 String crashDate = fields[0];
                 String zipCode = fields[2];
 
-                if (zipCode.isEmpty() || Integer.parseInt(crashDate.substring(0, 4)) <= 2012) {
-                    return; // Pomijamy wpisy bez kodu pocztowego i przed 2013 rokiem
+                // Dodajemy walidację daty
+                if (zipCode.isEmpty() || crashDate.length() < 10) {
+                    return; // Pomijamy wpisy bez kodu pocztowego i nieprawidłowo sformatowane daty
+                }
+
+                String yearString = crashDate.substring(crashDate.length() - 4);
+                int year;
+                try {
+                    year = Integer.parseInt(yearString);
+                } catch (NumberFormatException e) {
+                    return; // Pomijamy wpisy z nieprawidłowym rokiem
+                }
+
+                if (year <= 2012) {
+                    return; // Pomijamy wpisy przed 2013 rokiem
                 }
 
                 // Pobieramy nazwy ulic
@@ -112,6 +125,7 @@ public class Main extends Configured implements Tool {
             }
         }
     }
+
 
     public static class AccidentReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
